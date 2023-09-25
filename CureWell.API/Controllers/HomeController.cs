@@ -10,15 +10,15 @@ using System.Web.Http;
 
 namespace CureWell.API.Controllers
 {
-    [Route("api/[controller]")]
+    [RoutePrefix("api/Home")]
     public class HomeController : ApiController
     {
         private readonly ICureWellRepository cureWellRepository;
 
-        //public HomeController(ICureWellRepository cureWellRepository)
-        //{
-        //    this.cureWellRepository = cureWellRepository;
-        //}
+        public HomeController()
+        {
+            cureWellRepository = new CureWellRepository();
+        }
 
         [HttpGet]
         [Route("doctors")]
@@ -58,7 +58,10 @@ namespace CureWell.API.Controllers
         {
             bool success = cureWellRepository.AddDoctor(doctor);
             if (success)
-                return Created("/", doctor);
+            {
+                Doctor doc = cureWellRepository.GetAllDoctors().LastOrDefault(); 
+                return Created("/doctors",doc);
+            }
             else
             {
                 return BadRequest("Doctor details could not be added");
@@ -83,7 +86,7 @@ namespace CureWell.API.Controllers
         {
             var success = cureWellRepository.UpdateSurgery(SObj);
             if (success)
-                return Ok();
+                return Ok("Surgery time has been updated");
             else
                 return BadRequest();
 
@@ -95,7 +98,7 @@ namespace CureWell.API.Controllers
         {
             var success = cureWellRepository.DeleteDoctor(dObj);
             if (success)
-                return Ok();
+                return Ok("Doctor has been deleted");
             else
                 return BadRequest();
         }

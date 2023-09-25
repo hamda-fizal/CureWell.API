@@ -1,6 +1,8 @@
 ﻿using CureWell.Entity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,16 +11,24 @@ namespace CureWell.Data
 {
     public class CureWellRepository : ICureWellRepository
     {
+        SqlConnection connection;
+        SqlCommand command;
+
         public CureWellRepository()
         {
-            
+            connection = new SqlConnection("server=INL622;database=DoctorDB;trusted_connection=yes");
+            command = new SqlCommand();
+            command.Connection = connection;
         }
         public bool AddDoctor(Doctor dObj)
         {
             try
             {
-                var noOfEntries=0;
-                if (noOfEntries > 0)
+                command.CommandText = "insert into doctors (DoctorName) values ('" + dObj.DoctorName + "')";
+                connection.Open();
+                int affectedRows = command.ExecuteNonQuery();
+                connection.Close();
+                if (affectedRows > 0)
                     return true;
                 else
                     return false;
@@ -33,9 +43,15 @@ namespace CureWell.Data
         {
             try
             {
+                command.Connection = connection;
+                command.CommandText = "delete from doctors where DoctorId = " + dObj.DoctorId;
+                connection.Open();
 
-                int noOfEntries = 0;
-                if (noOfEntries > 0)
+                List<Doctor> doctors = new List<Doctor>();
+                int affectedRows = command.ExecuteNonQuery();
+                connection.Close();
+
+                if (affectedRows > 0)
                     return true;
                 else
                     return false;
@@ -51,12 +67,28 @@ namespace CureWell.Data
         {
             try
             {
-                List<Doctor> doctors = new List<Doctor>
-                {
-                    new Doctor() { DoctorId = 1007, DoctorName = "sdf" }
-                };
-                return doctors;
+                command.Connection = connection;
+                command.CommandText = "select * from doctors";
+                connection.Open();
 
+                List<Doctor> doctors = new List<Doctor>();
+
+                SqlDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    doctors.Add(new Doctor()
+                    {
+                        DoctorId = Int32.Parse(dataReader["DoctorId"].ToString()),
+                        DoctorName = dataReader["DoctorName"].ToString()
+                    });
+                }
+                dataReader.Close();
+                connection.Close();
+
+                if (doctors.Count > 0)
+                    return doctors;
+                else
+                    return null;
             }
             catch (Exception e)
             {
@@ -68,7 +100,26 @@ namespace CureWell.Data
         {
             try
             {
-                return null;
+
+                command.CommandText = "select * from Specializations";
+                connection.Open();
+                List<Specialization> specializations = new List<Specialization>();
+                SqlDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    specializations.Add(new Specialization()
+                    {
+                        SpecializationCode = dataReader["SpecializationCode"].ToString(),
+                        SpecializationName = dataReader["SpecializationName"].ToString()
+                    });
+                }
+                dataReader.Close();
+                connection.Close();
+
+                if (specializations.Count > 0)
+                    return specializations;
+                else
+                    return null;
             }
             catch (Exception e)
             {
@@ -81,8 +132,31 @@ namespace CureWell.Data
             try
             {
 
-                return null;
+                command.CommandText = "select * from Surgeries";
+                connection.Open();
 
+                List<Surgery> surgeries = new List<Surgery>();
+                SqlDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                   
+                    surgeries.Add(new Surgery()
+                    {
+                        SurgeryId = Int32.Parse(dataReader["SurgeryId"].ToString()),
+                        SurgeryCategory = dataReader["SurgeryCategory"].ToString(),
+                        StartTime = Decimal.Parse(dataReader["StartTime"].ToString()),
+                        EndTime = Decimal.Parse(dataReader["EndTime"].ToString()),
+                        DoctorId = Int32.Parse(dataReader["DoctorId"].ToString()),
+                        SurgeryDate=DateTime.Now,
+                });;
+                }
+                dataReader.Close();
+                connection.Close();
+
+                if (surgeries.Count > 0)
+                    return surgeries;
+                else
+                    return null;
             }
             catch (Exception e)
             {
@@ -94,7 +168,23 @@ namespace CureWell.Data
         {
             try
             {
-                return null;
+                command.CommandText = "select * from DrSpecializations where SpecializationCode='" + specializationCode + "'";
+                connection.Open();
+
+                List<DoctorSpecialization> doctorSpecializations = new List<DoctorSpecialization>();
+
+                SqlDataReader dataReader = command.ExecuteReader();
+                while (dataReader.Read())
+                {
+                    doctorSpecializations.Add(new DoctorSpecialization() {});
+                }
+                dataReader.Close();
+                connection.Close();
+
+                if (doctorSpecializations.Count > 0)
+                    return doctorSpecializations;
+                else
+                    return null;
 
             }
             catch (Exception e)
@@ -107,7 +197,9 @@ namespace CureWell.Data
         {
             try
             {
-                int noOfEntries = 0;
+                command.CommandText = "update doctors set DoctorName='" + dObj.DoctorName + "' where DoctorId=" + dObj.DoctorId;
+                connection.Open();
+                int noOfEntries = command.ExecuteNonQuery();
                 if (noOfEntries > 0)
                     return true;
                 else
@@ -124,10 +216,12 @@ namespace CureWell.Data
         {
             try
             {
-                Doctor data = null;
-                if (data != null)
+                command.CommandText = "update Surgeries set StartTime='" + sObj.StartTime + "',EndTime= '" + sObj.EndTime + "' where SurgeryId=" + sObj.SurgeryId;
+                connection.Open();
+                int noOfEntries = command.ExecuteNonQuery();
+                if (noOfEntries > 0)
                 {
-                   
+
                     return true;
                 }
                 return false;
