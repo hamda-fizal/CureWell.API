@@ -54,13 +54,18 @@ namespace CureWell.API.Controllers
 
         [HttpPost]
         [Route("doctors")]
-        public IHttpActionResult AddDoctor(Doctor doctor)
+        public IHttpActionResult AddDoctor(DoctorSpecialization doctor)
         {
             bool success = cureWellRepository.AddDoctor(doctor);
             if (success)
             {
-                Doctor doc = cureWellRepository.GetAllDoctors().LastOrDefault(); 
-                return Created("/doctors",doc);
+                Doctor doc = cureWellRepository.GetAllDoctors().LastOrDefault();
+                doctor.DoctorId = doc.DoctorId;
+                success = cureWellRepository.UpdateTables(doctor);
+                if(success)
+                    return Created("/doctors",doc);
+                else
+                    return BadRequest("Doctor details could not be added");
             }
             else
             {
@@ -74,7 +79,7 @@ namespace CureWell.API.Controllers
         {
             var success = cureWellRepository.UpdateDoctorDetails(dObj);
             if (success)
-                return Ok();
+                return Ok(dObj);
             else
                 return BadRequest();
 
@@ -93,10 +98,10 @@ namespace CureWell.API.Controllers
         }
 
         [HttpDelete]
-        [Route("doctors")]
-        public IHttpActionResult DeleteDoctor(Doctor dObj)
+        [Route("doctors/{id:int}")]
+        public IHttpActionResult DeleteDoctor(int id)
         {
-            var success = cureWellRepository.DeleteDoctor(dObj);
+            var success = cureWellRepository.DeleteDoctor(id);
             if (success)
                 return Ok("Doctor has been deleted");
             else
