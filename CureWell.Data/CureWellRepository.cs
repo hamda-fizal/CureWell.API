@@ -133,7 +133,7 @@ namespace CureWell.Data
             try
             {
 
-                command.CommandText = "select * from Surgeries";
+                command.CommandText = "select * from Surgeries where SurgeryDate >= GETDATE() ";
                 connection.Open();
 
                 List<Surgery> surgeries = new List<Surgery>();
