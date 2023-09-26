@@ -128,6 +128,7 @@ namespace CureWell.Data
             }
         }
 
+        //get surgeries whose start date is same as or after current date
         public List<Surgery> GetAllSurgeries()
         {
             try
