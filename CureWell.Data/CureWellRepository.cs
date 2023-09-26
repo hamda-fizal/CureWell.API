@@ -20,7 +20,7 @@ namespace CureWell.Data
             command = new SqlCommand();
             command.Connection = connection;
         }
-        public bool AddDoctor(Doctor dObj)
+        public bool AddDoctor(DoctorSpecialization dObj)
         {
             try
             {
@@ -32,6 +32,7 @@ namespace CureWell.Data
                     return true;
                 else
                     return false;
+               
             }
             catch (Exception e)
             {
@@ -39,12 +40,12 @@ namespace CureWell.Data
             }
         }
 
-        public bool DeleteDoctor(Doctor dObj)
+        public bool DeleteDoctor(int id)
         {
             try
             {
                 command.Connection = connection;
-                command.CommandText = "delete from doctors where DoctorId = " + dObj.DoctorId;
+                command.CommandText = "delete from doctors where DoctorId = " + id;
                 connection.Open();
 
                 List<Doctor> doctors = new List<Doctor>();
@@ -139,7 +140,7 @@ namespace CureWell.Data
                 SqlDataReader dataReader = command.ExecuteReader();
                 while (dataReader.Read())
                 {
-                   
+
                     surgeries.Add(new Surgery()
                     {
                         SurgeryId = Int32.Parse(dataReader["SurgeryId"].ToString()),
@@ -147,8 +148,8 @@ namespace CureWell.Data
                         StartTime = Decimal.Parse(dataReader["StartTime"].ToString()),
                         EndTime = Decimal.Parse(dataReader["EndTime"].ToString()),
                         DoctorId = Int32.Parse(dataReader["DoctorId"].ToString()),
-                        SurgeryDate=DateTime.Now,
-                });;
+                        SurgeryDate = Convert.ToDateTime(dataReader["SurgeryDate"].ToString())
+                    }); ;
                 }
                 dataReader.Close();
                 connection.Close();
@@ -168,7 +169,7 @@ namespace CureWell.Data
         {
             try
             {
-                command.CommandText = "select * from DrSpecializations where SpecializationCode='" + specializationCode + "'";
+                command.CommandText = "select dr.DoctorId,dr.DoctorName,s.SpecializationCode,s.SpecializationName,ds.SpecializationDate from doctors dr ,specializations s, DrSpecializations ds where ds.DoctorId = dr.DoctorId AND s.SpecializationCode = ds.SpecializationCode AND ds.SpecializationCode = '" + specializationCode + "'";
                 connection.Open();
 
                 List<DoctorSpecialization> doctorSpecializations = new List<DoctorSpecialization>();
@@ -176,7 +177,16 @@ namespace CureWell.Data
                 SqlDataReader dataReader = command.ExecuteReader();
                 while (dataReader.Read())
                 {
-                    doctorSpecializations.Add(new DoctorSpecialization() {});
+                    doctorSpecializations.Add(new DoctorSpecialization()
+                    {
+                        DoctorId = Int32.Parse(dataReader["DoctorId"].ToString()),
+                        DoctorName = dataReader["DoctorName"].ToString(),
+                        SpecializationCode = dataReader["SpecializationCode"].ToString(),
+                        SpecializationName = dataReader["SpecializationName"].ToString(),
+                        SpecializationDate =Convert.ToDateTime(dataReader["SpecializationDate"].ToString())
+
+
+                    });
                 }
                 dataReader.Close();
                 connection.Close();
@@ -230,6 +240,17 @@ namespace CureWell.Data
             {
                 return false;
             }
+        }
+        public bool UpdateTables(DoctorSpecialization dObj)
+        {
+            command.CommandText = "insert into DrSpecializations (DoctorId,SpecializationCode,SpecializationDate) values ('" + dObj.DoctorId + "','" + dObj.SpecializationCode + "','" + dObj.SpecializationDate + "')";
+            connection.Open();
+            int affectedRows = command.ExecuteNonQuery();
+            connection.Close();
+            if (affectedRows > 0)
+                return true;
+            else
+                return false;
         }
 
     }

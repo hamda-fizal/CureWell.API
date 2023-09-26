@@ -10,12 +10,14 @@ namespace CureWell.Data
     public interface ICureWellRepository
     {
         List<Doctor> GetAllDoctors();
-        bool AddDoctor(Doctor dObj);
+        bool AddDoctor(DoctorSpecialization dObj);
         List<Specialization> GetAllSpecialization();
         List<Surgery> GetAllSurgeries();
         List<DoctorSpecialization> GetDoctorsBySpecializationCode(string specializationCode);
         bool UpdateDoctorDetails(Doctor dObj);
         bool UpdateSurgery(Surgery sObj);
-        bool DeleteDoctor(Doctor dObj);
+        bool DeleteDoctor(int id);
+
+        bool UpdateTables(DoctorSpecialization dObj);
     }
 }
