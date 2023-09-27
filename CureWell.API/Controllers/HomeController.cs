@@ -57,7 +57,7 @@ namespace CureWell.API.Controllers
         public IHttpActionResult AddDoctor(DoctorSpecialization doctor)
         {
             bool success = cureWellRepository.AddDoctor(doctor);
-            if (success)
+            if (success && doctor.SpecializationCode!="Non")
             {
                 Doctor doc = cureWellRepository.GetAllDoctors().LastOrDefault();
                 doctor.DoctorId = doc.DoctorId;
@@ -66,6 +66,10 @@ namespace CureWell.API.Controllers
                     return Created("/doctors",doc);
                 else
                     return BadRequest("Doctor details could not be added");
+            }
+
+            else if(success){
+                return Created("/doctors", doctor);
             }
             else
             {

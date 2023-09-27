@@ -16,7 +16,7 @@ namespace CureWell.Data
 
         public CureWellRepository()
         {
-            connection = new SqlConnection("server=INL622;database=DoctorDB;trusted_connection=yes");
+            connection = new SqlConnection("server=INL608;database=DoctorDB;trusted_connection=yes");
             command = new SqlCommand();
             command.Connection = connection;
         }
@@ -244,14 +244,23 @@ namespace CureWell.Data
         }
         public bool UpdateTables(DoctorSpecialization dObj)
         {
-            command.CommandText = "insert into DrSpecializations (DoctorId,SpecializationCode,SpecializationDate) values ('" + dObj.DoctorId + "','" + dObj.SpecializationCode + "','" + dObj.SpecializationDate + "')";
-            connection.Open();
-            int affectedRows = command.ExecuteNonQuery();
-            connection.Close();
-            if (affectedRows > 0)
-                return true;
-            else
+            try
+            {
+                command.CommandText = "insert into DrSpecializations (DoctorId,SpecializationCode,SpecializationDate) values ('" + dObj.DoctorId + "','" + dObj.SpecializationCode + "','" + dObj.SpecializationDate + "')";
+                connection.Open();
+                int affectedRows = command.ExecuteNonQuery();
+                connection.Close();
+                if (affectedRows > 0)
+                    return true;
+                else
+                    return false;
+            }
+            catch (Exception)
+            {
+
                 return false;
+            }
+           
         }
 
     }
