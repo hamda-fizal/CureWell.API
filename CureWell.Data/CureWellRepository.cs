@@ -128,12 +128,13 @@ namespace CureWell.Data
             }
         }
 
+        //get surgeries whose start date is same as or after current date
         public List<Surgery> GetAllSurgeries()
         {
             try
             {
 
-                command.CommandText = "select * from Surgeries";
+                command.CommandText = "select * from Surgeries where SurgeryDate >= GETDATE() ";
                 connection.Open();
 
                 List<Surgery> surgeries = new List<Surgery>();
