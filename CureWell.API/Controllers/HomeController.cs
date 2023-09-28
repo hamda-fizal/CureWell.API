@@ -20,6 +20,7 @@ namespace CureWell.API.Controllers
             cureWellRepository = new CureWellRepository();
         }
 
+        // Get: To get all doctors
         [HttpGet]
         [Route("doctors")]
         public IHttpActionResult GetDoctors()
@@ -27,7 +28,7 @@ namespace CureWell.API.Controllers
             var data = cureWellRepository.GetAllDoctors();
             return Ok(data);
         }
-
+        // Get: To get all specializations
         [HttpGet]
         [Route("specializations")]
         public IHttpActionResult Get()
@@ -74,6 +75,22 @@ namespace CureWell.API.Controllers
             else
             {
                 return BadRequest("Doctor details could not be added");
+            }
+        }
+        [HttpPost]
+        [Route("surgeries")]
+        public IHttpActionResult AddSurgery(Surgery surgery)
+        {
+            bool success = cureWellRepository.AddSurgery(surgery);
+
+
+            if (success)
+            {
+                return Created("/surgeries", surgery);
+            }
+            else
+            {
+                return BadRequest("Doctor Id is does not exist");
             }
         }
 

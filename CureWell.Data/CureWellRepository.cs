@@ -15,9 +15,13 @@ namespace CureWell.Data
         SqlCommand command;
 
         public CureWellRepository()
-        {
-            connection = new SqlConnection("server=INL608;database=DoctorDB;trusted_connection=yes");
+        {   
+            //Connecting with the SQL server
+            connection = new SqlConnection("server=INL608;database=DoctorDB;trusted_connection=yes");   //Enter your servername and database
+
+            //instantiating SQLcommand
             command = new SqlCommand();
+
             command.Connection = connection;
         }
         public bool AddDoctor(DoctorSpecialization dObj)
@@ -33,6 +37,42 @@ namespace CureWell.Data
                 else
                     return false;
                
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool AddSurgery(Surgery sObj)
+        {
+            try
+            {
+                command.CommandText = "select SpecializationCode from DrSpecializations where DoctorId = " + sObj.DoctorId;
+                connection.Open();
+                var data = command.ExecuteScalar().ToString();
+                if(data!=null)
+                {
+                    sObj.SurgeryCategory = data;
+                }
+                else
+                {
+                    throw new Exception();
+                }
+
+
+                System.Diagnostics.Debug.WriteLine(sObj);
+                connection.Close();
+
+                command.CommandText = "insert into surgeries (DoctorId,EndTime,StartTime,SurgeryCategory,SurgeryDate) values (" + sObj.DoctorId + "," + sObj.EndTime + "," + sObj.StartTime + ",'" + sObj.SurgeryCategory + "','" + sObj.SurgeryDate + "')";
+                connection.Open();
+                int affectedRows = command.ExecuteNonQuery();
+                connection.Close();
+                if (affectedRows > 0)
+                    return true;
+                else
+                    return false;
+
             }
             catch (Exception e)
             {
@@ -64,12 +104,13 @@ namespace CureWell.Data
 
         }
 
+        // Executes select statement to retrieve all doctors
         public List<Doctor> GetAllDoctors()
         {
             try
             {
                 command.Connection = connection;
-                command.CommandText = "select * from doctors";
+                command.CommandText = "select * from doctors"; 
                 connection.Open();
 
                 List<Doctor> doctors = new List<Doctor>();
@@ -79,7 +120,7 @@ namespace CureWell.Data
                 {
                     doctors.Add(new Doctor()
                     {
-                        DoctorId = Int32.Parse(dataReader["DoctorId"].ToString()),
+                        DoctorId = Int32.Parse(dataReader["DoctorId"].ToString()),          //Doctor Id needs to be of type INT
                         DoctorName = dataReader["DoctorName"].ToString()
                     });
                 }
@@ -96,6 +137,8 @@ namespace CureWell.Data
                 return null;
             }
         }
+
+        // Executes select statement to retrieve all specializations
 
         public List<Specialization> GetAllSpecialization()
         {
@@ -166,6 +209,7 @@ namespace CureWell.Data
             }
         }
 
+        //To get Doctors with their corresponding specializations
         public List<DoctorSpecialization> GetDoctorsBySpecializationCode(string specializationCode)
         {
             try
@@ -204,6 +248,8 @@ namespace CureWell.Data
             }
         }
 
+           
+        //To update name of the doctor 
         public bool UpdateDoctorDetails(Doctor dObj)
         {
             try
@@ -223,6 +269,8 @@ namespace CureWell.Data
             }
 
         }
+
+        //to update start time and end time of surgery details
         public bool UpdateSurgery(Surgery sObj)
         {
             try
@@ -242,6 +290,8 @@ namespace CureWell.Data
                 return false;
             }
         }
+
+        // To add details to DrSpecialization table when adding doctors with specialization 
         public bool UpdateTables(DoctorSpecialization dObj)
         {
             try

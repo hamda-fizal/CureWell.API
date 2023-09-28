@@ -19,5 +19,7 @@ namespace CureWell.Data
         bool DeleteDoctor(int id);
 
         bool UpdateTables(DoctorSpecialization dObj);
+
+        bool AddSurgery(Surgery sObj);
     }
 }
